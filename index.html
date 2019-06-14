@@ -1,0 +1,334 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Release Notes</title>
+<script src="text.js">
+</script>
+<style>
+
+
+
+
+
+
+h2 {
+    font-size: 3em;
+    text-align: center;
+    font-weight: 400;
+}
+.table-row {
+    display: table-row;
+}
+.table-cell {
+    display: table-cell;
+}
+.progress {
+    height: .5em;
+    margin-bottom: .2em;
+    border: 2px solid #888888;
+    border-radius: .3em;
+    overflow: hidden;
+}
+.progress-line {
+    width: 0%;
+    height: 100%;
+    background-color: #AEE4EC;
+}
+.text-line {
+    margin-bottom: 1em;
+    border: 4px solid #888888;
+    border-radius: .5em;
+    overflow: hidden;
+}
+.text-part {
+    width: 50%;
+    height: 3em;
+    line-height: 3em;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+.text-part.left {
+    border-right: 1px solid #bbb;
+}
+.text-area {
+    position: absolute;
+    font-size: 2.5em;
+    white-space: pre;
+    z-index: 5;
+}
+.text-area-bg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background-color: rgba(204, 204, 204, .7);
+    background: linear-gradient(to right, rgba(204, 204, 204, .4) 0%,rgba(204, 204, 204, .8) 100%);
+    z-index: 10;
+}
+.left .text-area {
+    right: 0px;
+}
+.right .text-area {
+    left: 0px;
+}
+.wrong-text {
+    color: #F00;
+}
+.letter-mistakes {
+    /*     display:table; */
+}
+
+.single-letter {
+    width: 2.5em;
+    height: 2.5em;
+    display: inline-block;
+    margin: .2em;
+    padding: .3em;
+    line-height: .9em;
+    box-sizing: border-box;
+    border: 1px solid #888;
+    border-radius: .3em;
+    background-color: #E6E6E6;
+    
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1), 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+.key {
+    height: .9em;
+    /*     text-transform: uppercase; */
+}
+.kol {
+    text-align: right;
+    color: #DC2020;
+}
+/* .letter-mistakes .table-row{
+}
+.letter-mistakes .table-cell{
+    padding-right: 1em;
+} */
+
+.mistakes {
+    font-size: 2em;
+}
+</style>
+<body>
+  <div id='Field' class='main-field'>
+    <h2>Army Stamina</h2>
+    <div class='excersices'>
+        <form action='javascript:Stamina.start(CheckingList)' id='CheckingList'>
+        <div class="excersice-unit"><input type="text" onfocus="CheckingList.excersice[0].checked = true;CheckingList.excersice[0].checked = false;" name="custom_excersice" value=""></div>
+        </form>
+    </div>
+    <div class='progress'>
+        <div id='ProgressLine' class='progress-line'>
+        </div>
+    </div>
+    <div id='TextLine' class='text-line'>
+      <div class='left text-part'>
+        <div class='text-area-bg'></div>
+        <div id='LeftTextPart' class='text-area'>Army</div>
+      </div><div class='right text-part'>
+        <div id='RightTextPart' class='text-area'>Stamina</div>
+      </div>
+    </div>
+    <div class='letter-mistakes' id='LetterMistakes'></div>
+    <div class='mistakes'>
+        Ошибки: <span id='Mistakes'></span>
+    </div>
+    
+  </div>
+
+  <script type="text/javascript">
+
+
+
+
+
+
+
+Stamina = (function() {
+    var sInitialText
+    , sLeftText
+    , oDOMLeftText
+    , sRightText
+    , oDOMRightText
+    , bWrongFlag
+    , iMistakes
+    , oDOMMistakes
+    , oLetterMistakes
+    , oDOMLetterMistakes
+    , fProgress
+    , oDOMProgress;
+    
+    
+    // инициализация начальных переменных    
+    //     function init() {
+    (function() {
+        oDOMLeftText = document.getElementById('LeftTextPart');
+        oDOMRightText = document.getElementById('RightTextPart');
+        oDOMMistakes = document.getElementById('Mistakes');
+        oDOMLetterMistakes = document.getElementById('LetterMistakes');
+        oDOMProgress = document.getElementById('ProgressLine');
+//         initCheckField();
+        
+        
+        //         function initCheckField() {
+        (function() {
+            var key, oDOMDiv, oDOMCheckBox, oDOMButton;
+            
+            //добавляем группу radiobutton на страницу для выбора упражнения
+            for (key in arrExcersices) {
+                oDOMCheckBox = document.createElement('input');
+                oDOMCheckBox.setAttribute('type', 'radio');
+                oDOMCheckBox.setAttribute('name', 'excersice');
+                oDOMCheckBox.setAttribute('value', key);
+                
+                oDOMDiv = document.createElement('div');
+                oDOMDiv.classList.add('excersice-unit');
+                
+                oDOMDiv.appendChild(oDOMCheckBox);
+                oDOMDiv.innerHTML = oDOMDiv.innerHTML + key;
+                
+                CheckingList.appendChild(oDOMDiv);
+            }
+            
+            //добавляем submit
+            oDOMButton = document.createElement('button');
+            oDOMButton.setAttribute('type', 'submit');
+            oDOMButton.innerText = 'Ok';
+            CheckingList.appendChild(oDOMButton);
+        }
+        ());
+    
+    }
+    ());
+    
+    //     init();
+    
+    function start(form) {
+        var selectedRadioValue, inputValue;
+        
+        selectedRadioValue = form.excersice.value;
+        inputValue = form.custom_excersice.value;
+        
+        //не начинаем упражнение с пустыми данными полей
+        if ((!selectedRadioValue) && (!inputValue)) {
+            return;
+        }
+        
+        bWrongFlag = false;
+        iMistakes = 0;
+        fProgress = 0;
+        oLetterMistakes = {};
+        sLeftText = '';
+        
+        if (selectedRadioValue) {
+            if (typeof arrExcersices[selectedRadioValue] === "string") {
+                //подтягиваем набор символов для формирования упражнения в файле text.js
+                sInitialText = generateExcersice(arrExcersices[selectedRadioValue]);
+            } else {
+                //подтягиваем упражнение из списка в файле text.js
+                sInitialText = (selectedRadioValue) ? arrExcersices[selectedRadioValue][Math.round((arrExcersices[selectedRadioValue].length - 1) * Math.random())] : '';
+            }
+        } else {
+            //формируем упражнение из пользовательского набора символов
+            sInitialText = generateExcersice(inputValue);
+        }
+        
+        sRightText = sInitialText;
+        
+        refreshFields();
+        form.querySelector('button[type="submit"]').blur();
+        document.onkeypress = upKey;
+    }
+    
+    
+    
+    //обработчик нажатия клавиши
+    function upKey(e) {
+        var result, sEnteredSymbol, sRightSymbol;
+        
+        // если упражнение закончилось
+        if (!sRightText) {
+            return;
+        }
+        
+        //введенный и правильный символы соответсвенно
+        sEnteredSymbol = String.fromCharCode(e.keyCode);
+        sRightSymbol = sRightText.substr(0, 1);
+        
+        if (sEnteredSymbol == sRightSymbol) {
+            sRightText = sRightText.substr(1);
+            sLeftText = (bWrongFlag) ? sLeftText + '<span class="wrong-text">' + sRightSymbol + '</span>' : sLeftText + sRightSymbol;
+            bWrongFlag = false;
+        } else {
+            bWrongFlag = true;
+            (!oLetterMistakes[sRightSymbol]) ? oLetterMistakes[sRightSymbol] = 1 : oLetterMistakes[sRightSymbol] += 1;
+            iMistakes += 1;
+        }
+        
+        fProgress = (sInitialText.length - sRightText.length) / sInitialText.length * 100;
+        
+        refreshFields();
+    }
+    
+    //обновление динамических блоков на странице
+    function refreshFields() {
+        var key;
+        oDOMLeftText.innerHTML = sLeftText;
+        oDOMRightText.innerHTML = sRightText;
+        oDOMMistakes.innerHTML = iMistakes + ' (' + ((iMistakes / sInitialText.length) * 100).toFixed(2) + '%)';
+        oDOMProgress.style.width = fProgress.toFixed(2) + '%';
+        
+        
+        if (!sLeftText) {
+            oDOMLetterMistakes.innerHTML = '';
+        }
+        
+        if (bWrongFlag) {
+            oDOMLetterMistakes.innerHTML = '';
+            for (key in oLetterMistakes) {
+                //                 oDOMLetterMistakes.innerHTML += '<div class="table-row"><div class="table-cell">' + key + '</div><div class="table-cell">' + oLetterMistakes[key] + '</div></div>';
+                oDOMLetterMistakes.innerHTML += '<div class="single-letter"><div class="key">' + key + '</div><div class="kol">' + oLetterMistakes[key] + '</div></div>';
+            }
+        }
+    }
+    function generateExcersice(sChars) {
+        var i, iLastWordLength, iCurrWordLength, EX_LENGHT, MIN_LENGHT, MAX_LENGHT, arrChars, result;
+        
+        //минимальная и максимальная длина слова; количество символов в упражнении       
+        MIN_LENGHT = 3;
+        MAX_LENGHT = 10;
+        EX_LENGHT = 250;
+        
+        result = '';
+        iLastWordLength = 0;
+        
+        //генерируем в массив символов упражнения
+        arrChars = sChars.split('');
+        
+        //генерируем упражнение
+        while (result.length < EX_LENGHT) {
+            iCurrWordLength = Math.round(Math.random() * (MAX_LENGHT - MIN_LENGHT) + MIN_LENGHT);
+            for (i = 0; i < iCurrWordLength; i += 1) {
+                //добавляем случайную букву из набора символов
+                result += arrChars[Math.round((arrChars.length - 1) * Math.random())];
+            }
+            result += ' ';
+        }
+        
+        result = result.trim();
+        
+        return result;
+    }
+    
+    return {
+        start: start
+    }
+
+}
+)();
+</script>
+
+</body>
+</html>
