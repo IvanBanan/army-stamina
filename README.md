@@ -1,2 +1,2 @@
-# army-stamina
-army's keyboard simulator
+# Army Stamina
+Army's keyboard simulator.
